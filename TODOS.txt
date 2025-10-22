@@ -1,2 +1,3 @@
 The preview and non NA aggregation datasets have been added.
 These data sets have been created via data processing with Apache Spark in Java. They need to be migrated to PySpark for ease of use.
+The dataset file Edstats_Updated.csv has been added to .gitignore file and now safely can be in the data directory for future work.
