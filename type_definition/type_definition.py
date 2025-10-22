@@ -16,9 +16,14 @@ df = spark.read.format("csv") \
     .load(file_path)
 
 
-schema = df.schema
+year_cols = [c for c in df.columns if c.startswith("YR")]
 
-df.printSchema()
+non_year_cols = [c for c in df.columns if c not in year_cols]
 
+for col in non_year_cols:
+    distinct_df = df.select(col).distinct().na.drop()
+    output_path = f"distinct_values_{col}.csv"
 
-df.show(5)
+    distinct_df.coalesce(1).write.mode("overwrite").option("header", True).csv(output_path)
+    print(f"Saved distinct values for column '{col}' to {output_path}")
+
