@@ -3,7 +3,7 @@ import os
 from pyspark.sql import SparkSession
 
 
-input_file_path = os.path.join("..", "data", "Edstats_Updated.csv")
+input_file_path = os.path.join("..", "data", "output","1A_attributes_reorder","1A_attributes_reorder.csv")
 output_dir_path = os.path.join("..", "data", 'output', 'distinct_column_values')
 
 
@@ -23,7 +23,7 @@ year_cols = [c for c in df.columns if c.startswith("YR")]
 non_year_cols = [c for c in df.columns if c not in year_cols]
 
 for col in non_year_cols:
-    distinct_df = df.select(col).distinct().na.drop()
+    distinct_df = df.select(col).distinct()
     output_path = os.path.join(output_dir_path, f"distinct_values_{col}.csv")
 
     distinct_df.coalesce(1).write.mode("overwrite").option("header", True).csv(output_path)
