@@ -1,0 +1,11 @@
+Indicator name,UNIT_MEASURE,UNIT_TYPE,non_null_values,countries_covered,years_covered
+"Repeaters in Grade 5 of lower secondary general education, female (number)",SHARE,NUMBER,205,4,54
+"Repeaters in grade unknown of lower secondary general education, both sexes (number)",SHARE,NUMBER,203,4,53
+"School age population, secondary education, female (number)",,,270,5,54
+"School age population, tertiary education, male (number)",,,162,3,54
+"School age population, upper secondary education, both sexes (number)",,,186,4,54
+"School age population, last grade of primary education, female (number)",,,216,4,54
+"School age population, primary education, both sexes (number)",,,162,3,54
+"School age population, lower secondary education, both sexes (number)",,,162,3,54
+"School life expectancy, primary, female (years)",SHARE,NUMBER,172,4,51
+"Population of compulsory school age, both sexes (number)",SHARE,NUMBER,157,6,27
