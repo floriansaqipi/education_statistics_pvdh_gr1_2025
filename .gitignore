@@ -208,3 +208,5 @@ __marimo__/
 
 
 data/Edstats_Updated.csv
+data/output/1A_attributes_reorder/1A_attributes_reorder.csv
+data/output/1C_data_quality_cleaning/1C_quality_cleaned.csv
