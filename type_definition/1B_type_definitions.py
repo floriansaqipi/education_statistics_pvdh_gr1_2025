@@ -16,8 +16,7 @@ spark = SparkSession.builder \
 df = spark.read.csv(
     input_file_path,
     schema=schema,
-    header=True,
-    nullValue="NA"
+    header=True
 )
 
 df.count()
