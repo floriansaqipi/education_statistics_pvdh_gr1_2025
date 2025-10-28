@@ -116,7 +116,7 @@ def slugify(s):
 rename_map = {c: slugify(c) for c in df_wide.columns}
 df_wide = df_wide.rename(columns=rename_map)
 
-# Ruajtje
+
 panel_long_path = os.path.join(OUT_DIR, "panel_long.csv")
 panel_wide_path = os.path.join(OUT_DIR, "panel_wide.csv")
 quality_path = os.path.join(OUT_DIR, "indicator_quality_report.csv")

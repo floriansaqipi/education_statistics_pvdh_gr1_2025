@@ -1,31 +1,54 @@
-import os
-import pandas as pd
+from pyspark.sql import SparkSession, functions as F
+from pathlib import Path
+import shutil, glob
 
-df = pd.read_csv("data/Gr1_Education_Statistics_Preview.csv", low_memory=False)
+spark = SparkSession.builder.appName("Kosovo_Data").getOrCreate()
 
-kosovo_df = df[df["Country name"].str.contains("Kosovo", case=False, na=False)].copy()
-
-year_cols = [c for c in kosovo_df.columns if c.startswith("YR") and c[2:].isdigit()]
-
-id_vars = [c for c in kosovo_df.columns if c not in year_cols]
-kosovo_long = kosovo_df.melt(
-    id_vars=id_vars,
-    value_vars=year_cols,
-    var_name="Year",
-    value_name="Value"
+df = (
+    spark.read
+    .option("header", True)
+    .option("inferSchema", True)
+    .csv("data/integration_output/1A_attributes_reorder/education_reordered.csv")
 )
-kosovo_long["Year"] = kosovo_long["Year"].str.replace("YR", "", regex=False)
-kosovo_long["Year"] = pd.to_numeric(kosovo_long["Year"], errors="coerce")
 
-kosovo_long = kosovo_long.dropna(subset=["Value"])
+xkx_cnt = df.filter(F.col("economy") == "XKX").count()
+print("Rows with economy == XKX:", xkx_cnt)
 
-os.makedirs("output", exist_ok=True)
-out_path = "output/kosovo_all_data.csv"
-kosovo_long.to_csv(out_path, index=False, encoding="utf-8")
+(df.filter(F.col("economy") == "XKX")
+   .groupBy("Country name")
+   .count()
+   .orderBy(F.desc("count"))
+   .show(50, truncate=False))
+
+(df.filter(F.lower(F.col("Country name")).like("%kosov%"))
+   .select("economy","Country name","Indicator name")
+   .show(50, truncate=False))
+
+df_std = df.withColumn(
+    "Country_name_std",
+    F.when(F.col("economy") == "XKX", F.lit("Kosovo"))
+     .when(F.lower(F.col("Country name")).like("%kosov%"), F.lit("Kosovo"))
+     .otherwise(F.col("Country name"))
+)
+
+(df_std.filter(F.col("Country_name_std") == "Kosovo")
+       .select("economy","Country_name_std","Indicator name")
+       .show(20, truncate=False))
 
 
-print("Të dhënat për Kosovën u ruajtën në:", out_path)
-print("Numri total i rreshtave:", len(kosovo_long))
-print("Numri i indikatorëve unikë:", kosovo_long["Indicator name"].nunique())
-print("\nShembull i disa rreshtave:")
-print(kosovo_long.head(10))
+tmp_dir = "data/_tmp_kosovo_data"
+out_file = Path("data/kosovo_data.csv")
+
+(df_std.filter(F.col("Country_name_std") == "Kosovo")
+    .coalesce(1)
+    .write.mode("overwrite")
+    .option("header", True)
+    .csv(tmp_dir))
+
+part = glob.glob(f"{tmp_dir}/part-*.csv")[0]
+if out_file.exists():
+    out_file.unlink()
+shutil.move(part, out_file)
+shutil.rmtree(tmp_dir, ignore_errors=True)
+
+print("Të dhënat për Kosovën u ruajtën në:", out_file)
