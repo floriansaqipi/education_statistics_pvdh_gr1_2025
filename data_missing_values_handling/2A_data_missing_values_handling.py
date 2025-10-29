@@ -17,6 +17,12 @@ spark = SparkSession.builder.appName("Data Missing Values Handling").master("loc
 spark.sparkContext.setLogLevel("ERROR")
 
 df = spark.read.option("header", True).schema(schema).csv(input_file_path.as_posix())
+
+if "is_valid" in df.columns:
+    df = df.withColumn("is_valid", F.col("is_valid").cast("boolean"))
+else:
+    df = df.withColumn("is_valid", F.lit(True))
+
 df = df.replace("NA", None)
 
 all_year_cols = [f"YR{y}" for y in range(1960, 2030)]
@@ -42,6 +48,11 @@ if year_cols2:
     keep_all = [c for c in df.columns if not c.startswith("YR")] + keep_year2
     df = df.select(*keep_all)
 
+cols = df.columns
+year_cols = [c for c in cols if c.startswith("YR")]
+non_year = [c for c in cols if c not in year_cols and c != "is_valid"]
+ordered = non_year + year_cols + (["is_valid"] if "is_valid" in cols else [])
+df = df.select(*ordered)
 
 output_path = os.path.join(output_dir_path, "2A_missing_values_cleaned.csv")
 (df.coalesce(1)
