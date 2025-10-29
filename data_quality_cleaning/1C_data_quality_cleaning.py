@@ -1,25 +1,25 @@
-import os
+import os, sys
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, ROOT)
 
+from pathlib import Path
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 
 from utils.schema import schema
 
-input_file_path = os.path.join("..", "data", "output", "1A_attributes_reorder", "1A_attributes_reorder.csv")
-output_dir_path = os.path.join("..", "data", 'output', '1C_data_quality_cleaning')
+ROOT = Path(__file__).resolve().parents[1]
 
+input_file_path = ROOT / "data" / "integration" / "1A_attributes_reorder" / "1A_attributes_reordered.csv"
+output_dir_path = ROOT / "data" / "output" / "1C_data_quality_cleaning"
 
 spark = SparkSession.builder \
     .appName("CSV to Dataset") \
     .master("local[*]") \
     .getOrCreate()
 
-df = spark.read.csv(
-    input_file_path,
-    schema=schema,
-    header=True
-)
-
+df = spark.read.option(
+    "header", True).schema(schema).csv(input_file_path.as_posix())
 
 df = df.withColumn(
     "URBANIZATION",
