@@ -3,51 +3,50 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, ROOT)
 
 from pathlib import Path
-from pyspark.sql import SparkSession, functions as F
+from functools import reduce
+from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
+from utils.schema import schema
 
 ROOT = Path(__file__).resolve().parents[1]
-main_file = ROOT / "data" / "output" / "2B_data_cleaning" / "2B_cleaned.csv"
-class_file = ROOT / "data" / "CLASS_2025_10_07.csv"
-out_dir = ROOT / "data" / "output" / "3A_integration"
+input_file_path = ROOT / "data" / "output" / "1C_data_quality_cleaning" / "1C_quality_cleaned.csv"
+output_dir_path = ROOT / "data" / "output" / "2A_data_missing_values_handling"
 
-spark = SparkSession.builder.appName("3A integrate with CLASS").master("local[*]").getOrCreate()
+spark = SparkSession.builder.appName("Data Missing Values Handling").master("local[*]").getOrCreate()
 spark.sparkContext.setLogLevel("ERROR")
 
-m = spark.read.option("header", True).csv(main_file.as_posix())
-c = spark.read.option("header", True).csv(class_file.as_posix())
+df = spark.read.option("header", True).schema(schema).csv(input_file_path.as_posix())
 
-c = (
-    c.select("Code", "Region", "Income group", "Lending category")
-    .withColumn("code", F.upper(F.trim(F.col("Code"))))
-    .dropDuplicates(["code"])
-)
+if "is_valid" in df.columns:
+    df = df.withColumn("is_valid", F.col("is_valid").cast("boolean"))
+else:
+    df = df.withColumn("is_valid", F.lit(True))
 
-m2 = m.withColumn("economy_norm", F.upper(F.trim(F.col("economy"))))
-joined = m2.join(c, F.col("economy_norm") == F.col("code"), "left")
+df = df.replace("NA", None)
 
-keep_main = [c for c in m.columns]
-keep_class = ["code", "Region", "Income group", "Lending category"]
+year_cols = [f"YR{y}" for y in range(1960, 2030) if f"YR{y}" in df.columns]
+if year_cols:
+    condition = reduce(lambda a, b: a | b, [F.col(c).isNotNull() for c in year_cols])
+    df = df.filter(condition)
 
-out = joined.select(*[F.col(f"`{c}`") for c in keep_main], *[F.col(c) for c in keep_class])
-if "Code" in out.columns:
-    out = out.drop("Code")
+year_cols = [c for c in df.columns if c.startswith("YR")]
+if year_cols:
+    non_null_counts = df.select([F.count(F.col(c)).alias(c) for c in year_cols]).collect()[0].asDict()
+    all_null_year_cols = [c for c, v in non_null_counts.items() if v == 0]
+    if all_null_year_cols:
+        df = df.drop(*all_null_year_cols)
 
-cols = out.columns
-if "economy" in cols and "code" in cols:
-    cols_ordered = []
-    for c in cols:
-        cols_ordered.append(c)
-        if c == "economy":
-            cols_ordered.append("code")
-    seen = set()
-    cols_ordered = [x for x in cols_ordered if not (x in seen or seen.add(x))]
-    missing = [c for c in cols if c not in cols_ordered]
-    cols_ordered += missing
-    out = out.select(*[F.col(f"`{c}`") for c in cols_ordered])
+cols = df.columns
+year_cols = [c for c in cols if c.startswith("YR")]
+non_year = [c for c in cols if c not in year_cols and c != "is_valid"]
+ordered = non_year + year_cols + (["is_valid"] if "is_valid" in cols else [])
+df = df.select(*ordered)
 
-(out.coalesce(1)
-   .write.mode("overwrite")
-   .option("header", True)
-   .csv((out_dir / "3A_integrated_with_class.csv").as_posix()))
+output_path = os.path.join(output_dir_path, "2A_missing_values_cleaned.csv")
+(df.coalesce(1)
+   .write.option("header", True)
+   .mode("overwrite")
+   .csv(output_path))
 
+df.show(20, truncate=False)
 spark.stop()
