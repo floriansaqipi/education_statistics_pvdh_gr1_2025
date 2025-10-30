@@ -11,7 +11,7 @@ out_dir = ROOT / "data" / "output" / "2B_data_cleaning"
 
 spark = (SparkSession.builder
     .appName("2B Data Cleaning")
-    .master("local[1]")
+    .master("local[*]")
     .getOrCreate())
 spark.sparkContext.setLogLevel("ERROR")
 
@@ -24,7 +24,7 @@ else:
 
 df = df.filter(F.col("is_valid") == True)
 
-df = df.dropDuplicates(["INDICATOR", "INDICATOR_ROOT", "COMP_BREAKDOWN_1", "economy"])
+df = df.dropDuplicates()
 
 out_path = (out_dir / "2B_cleaned.csv").as_posix()
 (df.coalesce(1)

@@ -3,9 +3,8 @@ import os
 from pyspark.sql import SparkSession
 
 
-input_file_path = os.path.join("..", "data", "Gr1_Education_Statistics_Preview.csv")
-output_dir_path = os.path.join("..", "data", 'integration', '1A_attributes_reorder')
-
+input_file_path = os.path.join("..", "data", "Edstats_Updated.csv")
+output_dir_path = os.path.join("..", "data", 'output', '1A_attributes_reorder')
 
 spark = SparkSession.builder \
     .appName("CSV to Dataset") \

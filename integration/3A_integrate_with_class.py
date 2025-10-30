@@ -24,6 +24,7 @@ c = (
 
 m2 = m.withColumn("economy_norm", F.upper(F.trim(F.col("economy"))))
 joined = m2.join(c, F.col("economy_norm") == F.col("code"), "left")
+joined = joined.withColumn("Country name", F.col("Code"))
 
 keep_main = [col for col in m.columns]
 keep_class = ["Region", "Income group", "Lending category"]
@@ -39,6 +40,6 @@ if "economy_norm" in out.columns:
 (out.coalesce(1)
    .write.mode("overwrite")
    .option("header", True)
-   .csv((out_dir / "3A_integrated_with_class").as_posix()))
+   .csv((out_dir / "3A_integrated_with_class.csv").as_posix()))
 
 spark.stop()

@@ -1,4 +1,6 @@
 import os, sys
+from functools import reduce
+
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, ROOT)
 
@@ -10,7 +12,7 @@ from utils.schema import schema
 
 ROOT = Path(__file__).resolve().parents[1]
 
-input_file_path = ROOT / "data" / "integration" / "1A_attributes_reorder" / "1A_attributes_reordered.csv"
+input_file_path = ROOT / "data" / "output" / "1A_attributes_reorder" / "1A_attributes_reordered.csv"
 output_dir_path = ROOT / "data" / "output" / "1C_data_quality_cleaning"
 
 spark = SparkSession.builder \
@@ -52,9 +54,23 @@ df = df.withColumn(
     F.when(~F.col("URBANIZATION").isin(["URB", "RUR", "_T", "NA"]), F.lit(False)).otherwise(F.col("is_valid"))
 )
 
-output_path = os.path.join(output_dir_path, f"1C_quality_cleaned.csv")
-df.coalesce(1).write.option("header", True).mode("overwrite").csv(output_path)
+df = df.replace("NA", None)
 
+year_cols = [f"YR{y}" for y in range(1960, 2030) if f"YR{y}" in df.columns]
+# if year_cols:
+#     condition = reduce(lambda a, b: a | b, [F.col(c).isNotNull() for c in year_cols])
+#     df = df.filter(condition)
+
+if year_cols:
+    condition = reduce(lambda a, b: a & b, [F.col(c).isNull() for c in year_cols])
+    df = df.filter(condition)
+
+
+
+# output_path = os.path.join(output_dir_path, f"1C_quality_cleaned.csv")
+# df.coalesce(1).write.option("header", True).mode("overwrite").csv(output_path)
+
+print(df.count())
 
 df.show(truncate=False)
 
