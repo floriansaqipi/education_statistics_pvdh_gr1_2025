@@ -1,6 +1,4 @@
 import os, sys
-from functools import reduce
-
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, ROOT)
 
@@ -53,24 +51,6 @@ df = df.withColumn(
     "is_valid",
     F.when(~F.col("URBANIZATION").isin(["URB", "RUR", "_T", "NA"]), F.lit(False)).otherwise(F.col("is_valid"))
 )
-
-df = df.replace("NA", None)
-
-year_cols = [f"YR{y}" for y in range(1960, 2030) if f"YR{y}" in df.columns]
-# if year_cols:
-#     condition = reduce(lambda a, b: a | b, [F.col(c).isNotNull() for c in year_cols])
-#     df = df.filter(condition)
-
-if year_cols:
-    condition = reduce(lambda a, b: a & b, [F.col(c).isNull() for c in year_cols])
-    df = df.filter(condition)
-
-
-
-# output_path = os.path.join(output_dir_path, f"1C_quality_cleaned.csv")
-# df.coalesce(1).write.option("header", True).mode("overwrite").csv(output_path)
-
-print(df.count())
 
 df.show(truncate=False)
 
