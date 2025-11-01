@@ -213,3 +213,4 @@ data/output/1C_data_quality_cleaning/1C_quality_cleaned.csv
 data/output/2A_data_missing_values_handling/2A_missing_values_cleaned.csv
 data/output/2B_data_cleaning/2B_cleaned.csv
 data/output/3A_integration/3A_integrated_with_class.csv
+data/output/4BA_transformation/4BA_transformation_unpivot.csv
