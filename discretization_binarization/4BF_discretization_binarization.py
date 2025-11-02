@@ -33,7 +33,7 @@ for src, dst in [("EII_z", "EII_band"), ("OUTCOME_z", "OUTCOME_band"), ("Efficie
 df = df.withColumn("EII_high",       (F.col("EII_band") == 2).cast("int"))
 df = df.withColumn("OUTCOME_high",   (F.col("OUTCOME_band") == 2).cast("int"))
 df = df.withColumn("Efficiency_high",(F.col("Efficiency_band") == 2).cast("int"))
-df = df.orderBy("Efficiency")
+df = df.orderBy(F.col("Efficiency").desc())
 
 (df.coalesce(1)
    .write.mode("overwrite")

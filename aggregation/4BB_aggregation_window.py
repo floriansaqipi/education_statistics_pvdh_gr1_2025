@@ -19,7 +19,7 @@ output_dir_path = ROOT / "data" / "output" / "4BB_aggregation"
 
 spark = SparkSession.builder \
     .appName("CSV to Dataset") \
-    .master("local[*]") \
+    .master("local[1]") \
     .getOrCreate()
 
 df = spark.read.option(

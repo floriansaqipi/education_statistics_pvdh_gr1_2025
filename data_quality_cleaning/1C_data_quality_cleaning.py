@@ -52,6 +52,9 @@ df = df.withColumn(
     F.when(~F.col("URBANIZATION").isin(["URB", "RUR", "_T", "NA"]), F.lit(False)).otherwise(F.col("is_valid"))
 )
 
+output_path = os.path.join(output_dir_path, f"1C_quality_cleaned.csv")
+df.coalesce(1).write.option("header", True).mode("overwrite").csv(output_path)
+
 df.show(truncate=False)
 
 

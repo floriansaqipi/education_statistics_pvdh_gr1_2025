@@ -35,11 +35,7 @@ non_year_columns = [c for c in df.columns if not c.startswith('YR')]
 unpivot_df = df.select(*non_year_columns, expr(stack_expression))
 unpivot_df = unpivot_df.filter(F.col("Value").isNotNull())
 
-unpivot_df = unpivot_df.filter(F.col("UNIT_TYPE") == "SHARE")
-
-unpivot_df.show(n=300, truncate=False)
-
-# (unpivot_df.coalesce(1)
-#    .write.mode("overwrite")
-#    .option("header", True)
-#    .csv((output_dir_path / "4BA_transformation_unpivot.csv").as_posix()))
+(unpivot_df.coalesce(1)
+   .write.mode("overwrite")
+   .option("header", True)
+   .csv((output_dir_path / "4BA_transformation_unpivot.csv").as_posix()))
