@@ -1,6 +1,8 @@
 import os
 import sys
 
+from utils.schema import long_schema
+
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, ROOT)
 
@@ -23,10 +25,10 @@ spark = SparkSession.builder \
     .getOrCreate()
 
 finance = spark.read.option(
-    "header", True).csv(input_file_path_finance.as_posix())
+    "header", True).schema(long_schema).csv(input_file_path_finance.as_posix())
 
 learning = spark.read.option(
-    "header", True).csv(input_file_path_learning.as_posix())
+    "header", True).schema(long_schema).csv(input_file_path_learning.as_posix())
 
 wI = W.partitionBy("INDICATOR")
 
@@ -50,13 +52,13 @@ def standardize(df_in):
 fin_z = standardize(finance)
 out_z = standardize(learning)
 
-(finance.coalesce(1)
+(fin_z.coalesce(1)
    .write.mode("overwrite")
    .option("header", True)
    .csv((output_dir_path / "4BDA_transformation_normalized_finance.csv").as_posix()))
 
 
-(learning.coalesce(1)
+(out_z.coalesce(1)
    .write.mode("overwrite")
    .option("header", True)
    .csv((output_dir_path / "4BDB_transformation_normalized_learning.csv").as_posix()))

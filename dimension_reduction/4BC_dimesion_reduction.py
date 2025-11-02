@@ -1,6 +1,8 @@
 import os
 import sys
 
+from utils.schema import long_schema
+
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, ROOT)
 
@@ -21,7 +23,7 @@ spark = SparkSession.builder \
     .getOrCreate()
 
 df = spark.read.option(
-    "header", True).csv(input_file_path.as_posix())
+    "header", True).schema(long_schema).csv(input_file_path.as_posix())
 
 
 finance = df.filter(F.lower(F.col("Indicator name")).rlike("expenditure|spending|% of gdp|per student|government"))
