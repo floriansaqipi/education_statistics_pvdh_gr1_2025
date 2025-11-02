@@ -60,7 +60,7 @@ result_ready/
 - **Reproducible**: intermediate outputs are versioned by stage; downstream steps depend only on the prior stage’s output folder.
 - **Flexible**: we use **Python** and **PySpark** for transformation because of their **power, scalability, and expressiveness** on messy, wide, and time‑series‑like datasets.
 
-![Pipeline tree](Pipeline example.png)
+![Pipeline tree](Pipeline%20example.png)
 
 ### How course requirements are fulfilled (at a glance)
 - **Data collection / typing / quality**: schema enforcement, unit normalization, percent/decimal cleaning, wide‑to‑long conversion, validity flags.
