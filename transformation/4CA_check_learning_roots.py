@@ -8,23 +8,21 @@ from pyspark.sql import SparkSession, functions as F
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, ROOT.as_posix())
 
-in_file  = ROOT / "data" / "Edstats_Updated.csv"
-out_root = ROOT / "data" / "output" / "4AZ_check_learning_roots"
+in_file  = ROOT / "data" / "output" / "3A_integration" / "3A_integrated_with_class.csv"
+out_root = ROOT / "data" / "output" / "4CA_check_learning_roots"
 tmp_dir  = ROOT / "tmp_spark"
 out_root.mkdir(parents=True, exist_ok=True)
 tmp_dir.mkdir(parents=True, exist_ok=True)
 
 spark = (
     SparkSession.builder
-    .appName("4AZ check learning roots")
+    .appName("4CA check learning roots")
     .master("local[*]")
     .config("spark.sql.session.timeZone", "UTC")
     .config("spark.local.dir", tmp_dir.as_posix())
     .getOrCreate()
 )
 spark.sparkContext.setLogLevel("ERROR")
-
-print(f"Lexim nga: {in_file}")
 
 WL = [
     r"^SE\.CLO\.15Y\.",                  

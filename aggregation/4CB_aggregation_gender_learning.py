@@ -4,15 +4,15 @@ from pyspark.sql import SparkSession, functions as F
 
 ROOT = Path(__file__).resolve().parent
 
-in_file = ROOT / "data" / "output" / "4AZ_check_learning_roots" / "learning_indicators_only.csv"
-out_dir = ROOT / "data" / "output" / "4BC_aggregation_gender_learning"
+in_file = ROOT / "data" / "output" / "4CA_check_learning_roots" / "learning_indicators_only.csv"
+out_dir = ROOT / "data" / "output" / "4CB_aggregation_gender_learning"
 tmp_dir = ROOT / "tmp_spark"
 out_dir.mkdir(parents=True, exist_ok=True)
 tmp_dir.mkdir(parents=True, exist_ok=True)
 
 spark = (
     SparkSession.builder
-    .appName("4BC aggregation gender learning (absolute diff M-F by ROOT)")
+    .appName("4CB aggregation gender learning (absolute diff M-F by ROOT)")
     .master("local[*]")
     .config("spark.sql.session.timeZone", "UTC")
     .config("spark.local.dir", tmp_dir.as_posix())
@@ -62,7 +62,6 @@ out = (paired
 (out.coalesce(1)
     .write.mode("overwrite")
     .option("header", True)
-    .csv((out_dir / "4BC_country_gender_diff_abs_1970_2023.csv").as_posix()))
+    .csv((out_dir / "4CB_country_gender_diff_abs_1970_2023.csv").as_posix()))
 
-print(f"U krijua: {out_dir / '4BC_country_gender_diff_abs_1970_2023.csv'}")
 spark.stop()
