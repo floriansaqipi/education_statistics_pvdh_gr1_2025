@@ -9,8 +9,8 @@ from pyspark.sql import functions as F
 from utils.schema import schema
 
 ROOT = Path(__file__).resolve().parents[1]
-input_file_path = ROOT / "data" / "output" / "1C_data_quality_cleaning" / "1C_quality_cleaned.csv"
-output_dir_path = ROOT / "data" / "output" / "2A_data_missing_values_handling"
+input_file_path = ROOT / "data" / "phase_1" / "output" / "1C_data_quality_cleaning" / "1C_quality_cleaned.csv"
+output_dir_path = ROOT / "data" / "phase_1" / "output" / "2A_data_missing_values_handling"
 
 spark = SparkSession.builder.appName("Data Missing Values Handling").master("local[*]").getOrCreate()
 spark.sparkContext.setLogLevel("ERROR")

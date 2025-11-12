@@ -2,8 +2,8 @@ from pathlib import Path
 from pyspark.sql import SparkSession, functions as F
 
 ROOT = Path(__file__).resolve().parents[1]
-in_dir = ROOT / "data" / "output" / "4CC_aggregation_gender_learning_zscore" / "4CC_country_gender_diff_abs_z"
-out_dir = ROOT / "data" / "output" / "4CC_aggregation_gender_learning_zscore"
+in_dir = ROOT / "data" / "phase_1" / "output" / "4CC_aggregation_gender_learning_zscore" / "4CC_country_gender_diff_abs_z"
+out_dir = ROOT / "data" / "phase_1" / "output" / "4CC_aggregation_gender_learning_zscore"
 
 spark = (
     SparkSession.builder

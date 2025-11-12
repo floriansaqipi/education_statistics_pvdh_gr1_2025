@@ -8,9 +8,9 @@ from pathlib import Path
 from pyspark.sql import SparkSession, functions as F
 
 ROOT = Path(__file__).resolve().parents[1]
-main_file = ROOT / "data" / "output" / "2B_data_cleaning" / "2B_cleaned.csv"
+main_file = ROOT / "data"  / "phase_1" / "output" / "2B_data_cleaning" / "2B_cleaned.csv"
 class_file = ROOT / "data" / "CLASS_2025_10_07.csv"
-out_dir = ROOT / "data" / "output" / "3A_integration"
+out_dir = ROOT / "data"  / "phase_1" / "output" / "3A_integration"
 
 spark = SparkSession.builder.appName("3A integrate with CLASS").master("local[*]").getOrCreate()
 spark.sparkContext.setLogLevel("ERROR")

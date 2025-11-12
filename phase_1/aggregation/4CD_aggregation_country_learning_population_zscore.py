@@ -5,8 +5,8 @@ from pyspark.sql import Window as W
 
 ROOT = Path(__file__).resolve().parents[1]
 
-in_file = ROOT / "data" / "output" / "4CA_check_learning_roots" / "learning_indicators_only.csv"
-out_dir = ROOT / "data" / "output" / "4CD_aggregation_country_learning_population_zscore"
+in_file = ROOT / "data" / "phase_1" / "output" / "4CA_check_learning_roots" / "learning_indicators_only.csv"
+out_dir = ROOT / "data" / "phase_1" / "output" / "4CD_aggregation_country_learning_population_zscore"
 tmp_dir = ROOT / "tmp_spark"
 
 out_dir.mkdir(parents=True, exist_ok=True)

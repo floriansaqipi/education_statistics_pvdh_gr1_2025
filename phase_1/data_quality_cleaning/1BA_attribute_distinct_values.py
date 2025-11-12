@@ -3,8 +3,8 @@ import os
 from pyspark.sql import SparkSession
 
 
-input_file_path = os.path.join("..", "data", "output", "1A_attributes_reorder", "1A_attributes_reordered.csv")
-output_dir_path = os.path.join("..", "data", 'output', '1BA_distinct_column_values')
+input_file_path = os.path.join("..", "data", "phase_1", "output", "1A_attributes_reorder", "1A_attributes_reordered.csv")
+output_dir_path = os.path.join("..", "data", "phase_1", 'output', '1BA_distinct_column_values')
 
 
 spark = SparkSession.builder \

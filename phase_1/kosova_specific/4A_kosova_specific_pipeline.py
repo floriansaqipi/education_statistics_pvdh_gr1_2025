@@ -12,8 +12,8 @@ from utils.schema import integrated_schema, long_schema
 
 ROOT = Path(__file__).resolve().parents[1]
 
-input_file_path = ROOT / "data" / "output" / "4BA_transformation" / "4BA_transformation_unpivot.csv"
-output_dir_path = ROOT / "data" / "output" / "5A_kosova_specific"
+input_file_path = ROOT / "data" / "phase_1" / "output" / "4BA_transformation" / "4BA_transformation_unpivot.csv"
+output_dir_path = ROOT / "data" / "phase_1" / "output" / "5A_kosova_specific"
 
 spark = SparkSession.builder \
     .appName("CSV to Dataset") \

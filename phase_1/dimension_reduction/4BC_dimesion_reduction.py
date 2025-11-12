@@ -14,8 +14,8 @@ from pyspark.sql import Window as W
 
 ROOT = Path(__file__).resolve().parents[1]
 
-input_file_path = ROOT / "data" / "output" / "4BB_aggregation" / "4BB_aggregation_latest.csv"
-output_dir_path = ROOT / "data" / "output" / "4BC_dimension_reduction"
+input_file_path = ROOT / "data" / "phase_1" / "output" / "4BB_aggregation" / "4BB_aggregation_latest.csv"
+output_dir_path = ROOT / "data" / "phase_1" / "output" / "4BC_dimension_reduction"
 
 spark = SparkSession.builder \
     .appName("CSV to Dataset") \

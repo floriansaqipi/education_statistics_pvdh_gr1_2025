@@ -4,8 +4,8 @@ from pyspark.sql import SparkSession, functions as F
 
 ROOT = Path(__file__).resolve().parent
 
-in_file = ROOT / "data" / "output" / "4CA_check_learning_roots" / "learning_indicators_only.csv"
-out_dir = ROOT / "data" / "output" / "4CB_aggregation_gender_learning"
+in_file = ROOT / "data" / "phase_1" / "output" / "4CA_check_learning_roots" / "learning_indicators_only.csv"
+out_dir = ROOT / "data" / "phase_1" / "output" / "4CB_aggregation_gender_learning"
 tmp_dir = ROOT / "tmp_spark"
 out_dir.mkdir(parents=True, exist_ok=True)
 tmp_dir.mkdir(parents=True, exist_ok=True)

@@ -10,8 +10,8 @@ from utils.schema import schema
 
 ROOT = Path(__file__).resolve().parents[1]
 
-input_file_path = ROOT / "data" / "output" / "1A_attributes_reorder" / "1A_attributes_reordered.csv"
-output_dir_path = ROOT / "data" / "output" / "1C_data_quality_cleaning"
+input_file_path = ROOT / "data" / "phase_1" / "output" / "1A_attributes_reorder" / "1A_attributes_reordered.csv"
+output_dir_path = ROOT / "data" / "phase_1" / "output" / "1C_data_quality_cleaning"
 
 spark = SparkSession.builder \
     .appName("CSV to Dataset") \

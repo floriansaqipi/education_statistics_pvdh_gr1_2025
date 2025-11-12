@@ -3,7 +3,7 @@ from pyspark.sql import SparkSession, functions as F
 
 ROOT = Path(__file__).resolve().parents[1]
 
-base_dir = ROOT / "data" / "output" / "4CD_aggregation_country_learning_population_zscore"
+base_dir = ROOT / "data" / "phase_1" / "output" / "4CD_aggregation_country_learning_population_zscore"
 in_dir   = base_dir / "4CD_country_population_mean_z_1970_2023"   # <- input folder (si në 4CD)
 out_dir  = base_dir / "4CDD_discretization_binarization_population"
 tmp_dir  = ROOT / "tmp_spark"

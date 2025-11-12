@@ -12,10 +12,10 @@ from pyspark.sql import functions as F
 
 ROOT = Path(__file__).resolve().parents[1]
 
-input_file_path_finance = ROOT / "data" / "output" / "4BD_transformation_normalization" / "4BDA_transformation_normalized_finance.csv"
-input_file_path_learning = ROOT / "data" / "output" / "4BD_transformation_normalization" / "4BDB_transformation_normalized_learning.csv"
+input_file_path_finance = ROOT / "data" / "phase_1" / "output" / "4BD_transformation_normalization" / "4BDA_transformation_normalized_finance.csv"
+input_file_path_learning = ROOT / "data" / "phase_1" / "output" / "4BD_transformation_normalization" / "4BDB_transformation_normalized_learning.csv"
 
-output_dir_path = ROOT / "data" / "output" / "4BE_attribute_creation_subset"
+output_dir_path = ROOT / "data" / "phase_1" / "output" / "4BE_attribute_creation_subset"
 
 spark = SparkSession.builder \
     .appName("CSV to Dataset") \

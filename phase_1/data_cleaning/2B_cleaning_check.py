@@ -6,8 +6,8 @@ from pathlib import Path
 from pyspark.sql import SparkSession, functions as F
 
 ROOT = Path(__file__).resolve().parents[1]
-in_2A = ROOT / "data" / "output" / "2A_data_missing_values_handling" / "2A_missing_values_cleaned.csv"
-in_2B = ROOT / "data" / "output" / "2B_data_cleaning" / "2B_cleaned.csv"
+in_2A = ROOT / "data" / "phase_1" / "output" / "2A_data_missing_values_handling" / "2A_missing_values_cleaned.csv"
+in_2B = ROOT / "data" / "phase_1" / "output" / "2B_data_cleaning" / "2B_cleaned.csv"
 
 spark = (SparkSession.builder.appName("2B Cleaning Check").master("local[*]").getOrCreate())
 spark.sparkContext.setLogLevel("ERROR")

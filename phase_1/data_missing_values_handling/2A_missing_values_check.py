@@ -13,8 +13,8 @@ os.environ["PYSPARK_PYTHON"] = PY
 os.environ["PYSPARK_DRIVER_PYTHON"] = PY
 
 ROOT = Path(__file__).resolve().parents[1]
-before_dir = ROOT / "data" / "output" / "1C_data_quality_cleaning" / "1C_quality_cleaned.csv"
-after_dir  = ROOT / "data" / "output" / "2A_data_missing_values_handling" / "2A_missing_values_cleaned.csv"
+before_dir = ROOT / "data" / "phase_1" / "output" / "1C_data_quality_cleaning" / "1C_quality_cleaned.csv"
+after_dir  = ROOT / "data" / "phase_1" / "output" / "2A_data_missing_values_handling" / "2A_missing_values_cleaned.csv"
 
 spark = (
     SparkSession.builder

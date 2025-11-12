@@ -12,9 +12,9 @@ from pyspark.sql import functions as F
 
 ROOT = Path(__file__).resolve().parents[1]
 
-input_file_path = ROOT / "data" / "output" / "4BF_discretization_binarization" / "4BF_discretization_binarization.csv"
+input_file_path = ROOT / "data" / "phase_1" /  "output" / "4BF_discretization_binarization" / "4BF_discretization_binarization.csv"
 
-output_dir_path = ROOT / "data" / "output" / "5B_final_results"
+output_dir_path = ROOT / "data" / "phase_1" / "output" / "5B_final_results"
 
 spark = SparkSession.builder \
     .appName("CSV to Dataset") \

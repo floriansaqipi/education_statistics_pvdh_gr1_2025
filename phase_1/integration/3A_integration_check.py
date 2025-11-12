@@ -6,8 +6,8 @@ from pathlib import Path
 from pyspark.sql import SparkSession, functions as F
 
 ROOT = Path(__file__).resolve().parents[1]
-main_file = ROOT / "data" / "output" / "2B_data_cleaning" / "2B_cleaned.csv"
-joined_dir = ROOT / "data" / "output" / "3A_integration" / "3A_integrated_with_class"
+main_file = ROOT / "data"  / "phase_1" / "output" / "2B_data_cleaning" / "2B_cleaned.csv"
+joined_dir = ROOT / "data"  / "phase_1" / "output" / "3A_integration" / "3A_integrated_with_class"
 
 spark = SparkSession.builder.appName("3A Integration Check").master("local[*]").getOrCreate()
 spark.sparkContext.setLogLevel("ERROR")

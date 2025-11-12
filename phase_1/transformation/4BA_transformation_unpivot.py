@@ -11,8 +11,8 @@ from utils.schema import schema, integrated_schema
 
 ROOT = Path(__file__).resolve().parents[1]
 
-input_file_path = ROOT / "data" / "output" / "3A_integration" / "3A_integrated_with_class.csv"
-output_dir_path = ROOT / "data" / "output" / "4BA_transformation"
+input_file_path = ROOT / "data" / "phase_1" / "output" / "3A_integration" / "3A_integrated_with_class.csv"
+output_dir_path = ROOT / "data" / "phase_1" / "output" / "4BA_transformation"
 
 spark = SparkSession.builder \
     .appName("CSV to Dataset") \

@@ -14,10 +14,10 @@ from pyspark.sql import Window as W
 
 ROOT = Path(__file__).resolve().parents[1]
 
-input_file_path_finance = ROOT / "data" / "output" / "4BC_dimension_reduction" / "4BCA_dimension_reduction_filtered_finance.csv"
-input_file_path_learning = ROOT / "data" / "output" / "4BC_dimension_reduction" / "4BCB_dimension_reduction_filtered_learning.csv"
+input_file_path_finance = ROOT / "data" / "phase_1" / "output" / "4BC_dimension_reduction" / "4BCA_dimension_reduction_filtered_finance.csv"
+input_file_path_learning = ROOT / "data" / "phase_1"/ "output" / "4BC_dimension_reduction" / "4BCB_dimension_reduction_filtered_learning.csv"
 
-output_dir_path = ROOT / "data" / "output" / "4BD_transformation_normalization"
+output_dir_path = ROOT / "data" / "phase_1" / "output" / "4BD_transformation_normalization"
 
 spark = SparkSession.builder \
     .appName("CSV to Dataset") \

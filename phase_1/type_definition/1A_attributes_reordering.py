@@ -4,7 +4,7 @@ from pyspark.sql import SparkSession
 
 
 input_file_path = os.path.join("../..", "data", "Edstats_Updated.csv")
-output_dir_path = os.path.join("../..", "data", 'output', '1A_attributes_reorder')
+output_dir_path = os.path.join("../..", "data", "phase_1", 'output', '1A_attributes_reorder')
 
 spark = SparkSession.builder \
     .appName("CSV to Dataset") \

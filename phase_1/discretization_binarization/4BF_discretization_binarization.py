@@ -13,9 +13,9 @@ from pyspark.ml.feature import QuantileDiscretizer
 
 ROOT = Path(__file__).resolve().parents[1]
 
-input_file_path = ROOT / "data" / "output" / "4BE_attribute_creation_subset" / "4BE_attribute_creation_subset.csv"
+input_file_path = ROOT / "data" / "phase_1" / "output" / "4BE_attribute_creation_subset" / "4BE_attribute_creation_subset.csv"
 
-output_dir_path = ROOT / "data" / "output" / "4BF_discretization_binarization"
+output_dir_path = ROOT / "data" / "phase_1" / "output" / "4BF_discretization_binarization"
 
 spark = SparkSession.builder \
     .appName("CSV to Dataset") \
