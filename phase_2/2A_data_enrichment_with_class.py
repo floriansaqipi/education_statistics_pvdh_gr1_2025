@@ -1,22 +1,33 @@
 import os
-import sys
 
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, ROOT)
-
-from pathlib import Path
 from pyspark.sql import SparkSession, functions as F
 
-ROOT = Path(__file__).resolve().parents[1]
-main_file = ROOT / "data" / "phase_2" / "output" / "1C_outliers_cleaned" / "1C_outliers_cleaned.csv"
-class_file = ROOT / "data" / "CLASS_2025_10_07.csv"
-out_dir = ROOT / "data" / "phase_2" / "output" / "2A_data_enrichment_with_class"
+from utils.paths import phase2_path, data_path
 
-spark = SparkSession.builder.appName("CSV to Dataset").master("local[*]").getOrCreate()
+input_file_path = phase2_path("1C_outliers_cleaned", "1C_outliers_cleaned.csv")
+class_file_path = data_path("CLASS_2025_10_07.csv")
+output_dir_path = phase2_path("2A_data_enrichment_with_class")
+
+spark = (
+    SparkSession.builder
+    .appName("CSV to Dataset")
+    .master("local[*]")
+    .getOrCreate()
+)
+
 spark.sparkContext.setLogLevel("ERROR")
 
-m = spark.read.option("header", True).csv(main_file.as_posix())
-c = spark.read.option("header", True).csv(class_file.as_posix())
+m = (
+    spark.read
+    .option("header", True)
+    .csv(input_file_path)
+)
+
+c = (
+    spark.read
+    .option("header", True)
+    .csv(class_file_path)
+)
 
 c = (
     c.select(F.col("Economy").alias("country_name_join"), "Code", "Region", "Income group", "Lending category")
@@ -51,9 +62,14 @@ if "country_name_join" in out.columns:
 
 out.show(truncate=False)
 
-(out.coalesce(1)
- .write.mode("overwrite")
- .option("header", True)
- .csv((out_dir / "2A_enriched_with_class.csv").as_posix()))
+output_file = os.path.join(output_dir_path, "2A_enriched_with_class.csv")
+
+(
+    out.coalesce(1)
+    .write
+    .mode("overwrite")
+    .option("header", True)
+    .csv(output_file)
+)
 
 spark.stop()

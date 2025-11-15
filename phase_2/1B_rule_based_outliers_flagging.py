@@ -1,25 +1,24 @@
-import os, sys
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, ROOT)
+import os
 
-from pathlib import Path
-from pyspark.sql import SparkSession
-from pyspark.sql import functions as F
+from pyspark.sql import SparkSession, functions as F
 
 from utils.schema import schema
+from utils.paths import phase1_path, phase2_path
 
-ROOT = Path(__file__).resolve().parents[1]
-
-input_file_path = ROOT / "data" / "phase_1" / "output" / "1A_attributes_reorder" / "1A_attributes_reordered.csv"
-output_dir_path = ROOT / "data" / "phase_2" / "output" / "1B_rule_based_outliers_flagging"
+input_file_path = phase1_path("1A_attributes_reorder", "1A_attributes_reordered.csv")
+output_dir_path = phase2_path("1B_rule_based_outliers_flagging")
 
 spark = SparkSession.builder \
     .appName("CSV to Dataset") \
     .master("local[*]") \
     .getOrCreate()
 
-df = spark.read.option(
-    "header", True).schema(schema).csv(input_file_path.as_posix())
+df = (
+    spark.read
+    .option("header", True)
+    .schema(schema)
+    .csv(input_file_path)
+)
 
 df = df.withColumn(
     "URBANIZATION",
@@ -52,11 +51,7 @@ df = df.withColumn(
     F.when(~F.col("URBANIZATION").isin(["URB", "RUR", "_T", "NA"]), F.lit(True)).otherwise(F.col("is_outlier"))
 )
 
-output_path = os.path.join(output_dir_path, f"1B_outliers_flagged.csv")
-df.coalesce(1).write.option("header", True).mode("overwrite").csv(output_path)
+output_file = os.path.join(output_dir_path, "1B_outliers_flagged.csv")
+df.coalesce(1).write.option("header", True).mode("overwrite").csv(output_file)
 
 df.show(truncate=False)
-
-
-
-
