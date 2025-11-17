@@ -3,10 +3,11 @@ These data sets have been created via data processing with Apache Spark in Java.
 The dataset file Edstats_Updated.csv has been added to .gitignore file and now safely can be in the data directory for future work.
 
 --Phase 2
-Need to rework the documentation oh phase one
+Need to rework the documentation on phase one
 Need to move all files relating to phase 1
 Need to rework their paths
 
 -----
 Work on the pipeline outliers for phase 2 mostly the outlier detection
-It must be done towards the normalization phases since on phase one we have worked on pipelines that do
+It must be done towards the normalization phases since on phase one we have worked on pipelines that do most of the work relating to aggregation and final compact results
+

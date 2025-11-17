@@ -219,3 +219,6 @@ data/phase_1/output/4BB_aggregation/4BB_aggregation_latest.csv
 
 data/phase_1/output/4CD_aggregation_country_learning_population_zscore/4CD_country_root_population_mean_z/
 data/phase_1/output/4CA_check_learning_roots/learning_indicators_only.csv
+
+data/phase_2/output/1B_rule_based_outliers_flagging/1B_outliers_flagged.csv
+data/phase_2/output/1C_outliers_cleaned/1C_outliers_cleaned.csv
