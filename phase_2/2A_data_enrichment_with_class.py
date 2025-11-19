@@ -4,7 +4,7 @@ from pyspark.sql import SparkSession, functions as F
 
 from utils.paths import phase2_path, data_path
 
-input_file_path = phase2_path("1C_outliers_cleaned", "1C_outliers_cleaned.csv")
+input_file_path = phase2_path("1D_outliers_cleaned", "1D_outliers_cleaned.csv")
 class_file_path = data_path("CLASS_2025_10_07.csv")
 output_dir_path = phase2_path("2A_data_enrichment_with_class")
 
