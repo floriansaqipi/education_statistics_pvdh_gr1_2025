@@ -223,3 +223,6 @@ data/phase_1/output/4CA_check_learning_roots/learning_indicators_only.csv
 data/phase_2/output/1B_rule_based_outliers_flagging/1B_outliers_flagged.csv
 data/phase_2/output/1C_empty_sparse_outliers_removal/1C_empty_sparse_outliers_cleaned.csv
 data/phase_2/output/1D_outliers_cleaned/1D_outliers_cleaned.csv
+data/phase_2/output/2A_data_enrichment_with_class/2A_enriched_with_class.csv
+data/phase_2/output/3BA_transformation/3BA_transformation_unpivot.csv
+data/phase_2/output/3BB_aggregation/3BB_aggregation_latest.csv

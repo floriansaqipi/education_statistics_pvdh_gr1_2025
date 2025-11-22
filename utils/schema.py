@@ -24,10 +24,25 @@ integrated_schema = StructType(
     [StructField(f"YR{year}", DoubleType(), True) for year in range(1970, 2025)]
 )
 
+integrated_outlier_schema = StructType(
+    [StructField(c, StringType(), True) for c in non_year_fields] +
+    [StructField(c, StringType(), True) for c in integrated_fields] +
+    [StructField("is_outlier", BooleanType())] +
+    [StructField(f"YR{year}", DoubleType(), True) for year in range(1970, 2025)]
+)
+
 long_schema = StructType(
     [StructField(c, StringType(), True) for c in non_year_fields] +
     [StructField(c, StringType(), True) for c in integrated_fields] +
     [StructField("is_valid", BooleanType())] +
+    [StructField("Year", IntegerType())] +
+    [StructField("Value", DoubleType())]
+)
+
+long_outlier_schema = StructType(
+    [StructField(c, StringType(), True) for c in non_year_fields] +
+    [StructField(c, StringType(), True) for c in integrated_fields] +
+    [StructField("is_outlier", BooleanType())] +
     [StructField("Year", IntegerType())] +
     [StructField("Value", DoubleType())]
 )
