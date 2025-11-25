@@ -226,3 +226,5 @@ data/phase_2/output/1D_outliers_cleaned/1D_outliers_cleaned.csv
 data/phase_2/output/2A_data_enrichment_with_class/2A_enriched_with_class.csv
 data/phase_2/output/3BA_transformation/3BA_transformation_unpivot.csv
 data/phase_2/output/3BB_aggregation/3BB_aggregation_latest.csv
+data/phase_2/output/3BC_dimension_reduction/3BCB_dimension_reduction_filtered_learning.csv
+data/phase_2/output/3BD_transformation_normalization/3BDB_transformation_normalized_learning.csv
