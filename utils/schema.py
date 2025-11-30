@@ -62,6 +62,15 @@ normalized_schema = StructType(
     [StructField(c, DoubleType(), True) for c in normalization_fields]
 )
 
+normalized_outlier_schema = StructType(
+    [StructField(c, StringType(), True) for c in non_year_fields] +
+    [StructField(c, StringType(), True) for c in integrated_fields] +
+    [StructField("is_valid", BooleanType())] +
+    [StructField("Year", IntegerType())] +
+    [StructField("Value", DoubleType())] +
+    [StructField(c, DoubleType(), True) for c in normalization_fields]
+)
+
 attributes_schema = StructType(
     [StructField("economy", StringType(), True)] +
     [StructField("Country name", StringType(), True)] +
