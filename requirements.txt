@@ -1,2 +1,3 @@
+matplotlib
 pyspark>=3.4
 numpy
