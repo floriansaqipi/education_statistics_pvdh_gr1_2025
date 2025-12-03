@@ -33,7 +33,7 @@ wI = W.partitionBy("INDICATOR")
 def standardize(df_in):
     return (df_in
             .withColumn("val_std",
-                        F.when(F.col("UNIT_TYPE") == "NUMBER", F.log1p(F.col("Value")))
+                        F.when(F.col("UNIT_TYPE") == "NUMBER", F.col("Value"))
                         .when((F.col("UNIT_TYPE") == "SHARE") & (F.col("Value") > 1), F.col("Value") / 100.0)
                         .otherwise(F.col("Value"))
                         )
@@ -49,20 +49,43 @@ def standardize(df_in):
 fin_z = standardize(finance)
 out_z = standardize(learning)
 
+
+
 print(fin_z.count())
 print(out_z.count())
 
 finance_output_file = os.path.join(output_dir_path, "3BDA_transformation_normalized_finance.csv")
 learning_output_file = os.path.join(output_dir_path, "3BDB_transformation_normalized_learning.csv")
 
-(fin_z.coalesce(1)
-   .write.mode("overwrite")
-   .option("header", True)
-   .csv(finance_output_file))
+import matplotlib.pyplot as plt
 
 
-(out_z.coalesce(1)
-   .write.mode("overwrite")
-   .option("header", True)
-   .csv(learning_output_file))
+fin_pd = fin_z.toPandas()
+out_pd = out_z.toPandas()
+
+def plot_z_hist(df, title):
+    # take the z column, drop missing
+    z = df["z"].dropna()
+
+    plt.figure()
+    # more bins => more bars => smoother look
+    plt.hist(z, bins=250, density=True)  # density=True makes it a bit more "bell-shaped"
+
+    # add vertical lines at -3, -2, -1, 0, 1, 2, 3 standard deviations
+    for k in range(-10, 10):
+        plt.axvline(k, linestyle="--")  # dashed vertical line at each k
+
+    plt.title(title)
+    plt.xlabel("z-score")
+    plt.ylabel("Density")
+    plt.show()
+
+
+# Finance z distribution
+plot_z_hist(fin_pd, "Finance indicators – z distribution")
+
+# Learning z distribution
+plot_z_hist(out_pd, "Learning indicators – z distribution")
+
+
 
