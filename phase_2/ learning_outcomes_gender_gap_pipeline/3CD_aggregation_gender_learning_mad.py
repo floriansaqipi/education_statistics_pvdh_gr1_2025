@@ -1,16 +1,15 @@
 import os
 
 from pyspark.sql import SparkSession, functions as F
-
 from utils.paths import phase2_path
 from utils.schema import learning_indicators_schema
 
 input_file_path = phase2_path("3CA_check_learning_roots", "learning_indicators_only")
-output_dir_path = phase2_path("3CD_aggregation_population_learning_mad")
+output_dir_path = phase2_path("3CD_aggregation_gender_learning_mad")
 
 spark = (
     SparkSession.builder
-    .appName("3CD population learning (MAD)")
+    .appName("3CD aggregation gender learning (MAD)")
     .master("local[*]")
     .getOrCreate()
 )
@@ -44,7 +43,7 @@ for c in year_cols:
 
 stack_expr = f"stack({len(year_cols)}, {', '.join(stack_parts)}) as (Year, Value)"
 
-long_df = (
+df_long = (
     df.select(*non_year_cols, *year_cols)
       .select(*non_year_cols, F.expr(stack_expr))
       .withColumn("Year", F.col("Year").cast("int"))
@@ -54,24 +53,20 @@ long_df = (
       .filter(F.length(F.col("Country name")) > 0)
 )
 
-long_df = long_df.withColumn(
+df_long = df_long.withColumn(
     "SEX_NORM",
     F.when(F.upper(F.trim(F.col("SEX"))).isin("M", "MALE"), "M")
      .when(F.upper(F.trim(F.col("SEX"))).isin("F", "FEMALE"), "F")
-     .when(F.upper(F.trim(F.col("SEX"))).isin("_T", "T", "TOTAL"), "T")
      .otherwise(F.lit(None))
 ).filter(F.col("SEX_NORM").isNotNull())
 
-long_df = long_df.filter(F.col("Value") >= 0)
+df_long = df_long.filter(F.col("Value") >= 0)
 
 df_std = (
-    long_df.withColumn(
+    df_long.withColumn(
         "val_std",
         F.when(F.col("UNIT_TYPE") == "NUMBER", F.log1p(F.col("Value")))
-         .when(
-             (F.col("UNIT_TYPE") == "SHARE") & (F.col("Value") > 1.0),
-             F.col("Value") / 100.0
-         )
+         .when((F.col("UNIT_TYPE") == "SHARE") & (F.col("Value") > 1.0), F.col("Value") / 100.0)
          .otherwise(F.col("Value"))
     )
 )
@@ -104,45 +99,35 @@ df_mad = (
           )
 )
 
-df_mad = df_mad.filter(F.col("z_robust").isNotNull())
-df_mad = df_mad.filter(F.abs(F.col("z_robust")) <= 3.5)
+df_clean = df_mad.filter(F.abs(F.col("z_robust")) <= 3.5)
 
-by_root_sex = (
-    df_mad.groupBy("Country name", "INDICATOR_ROOT", "SEX_NORM")
-          .agg(F.avg("z_robust").alias("root_mean_mad"))
+by_root = (
+    df_clean.groupBy("Country name", "INDICATOR_ROOT", "SEX_NORM")
+            .agg(F.avg("val_std").alias("root_mean_mad"))
 )
 
-pivoted = (
-    by_root_sex.groupBy("Country name", "INDICATOR_ROOT")
-               .pivot("SEX_NORM", ["M", "F", "T"])
-               .agg(F.first("root_mean_mad"))
-)
-
-pop_mean_root = (
-    pivoted
-    .withColumn("mf_avg_mad", (F.col("M") + F.col("F")) / 2.0)
-    .withColumn(
-        "pop_mean_root_mad",
-        F.when(
-            F.col("T").isNotNull() & F.col("mf_avg_mad").isNotNull(),
-            (F.col("T") + F.col("mf_avg_mad")) / 2.0
-        )
-         .when(F.col("T").isNotNull(), F.col("T"))
-         .otherwise(F.col("mf_avg_mad"))
-    )
-    .filter(F.col("pop_mean_root_mad").isNotNull())
+paired = (
+    by_root.groupBy("Country name", "INDICATOR_ROOT")
+           .pivot("SEX_NORM", ["M", "F"])
+           .agg(F.first("root_mean_mad"))
+           .filter(F.col("M").isNotNull() & F.col("F").isNotNull())
 )
 
 out_country = (
-    pop_mean_root.groupBy("Country name")
-                 .agg(
-                     F.avg("pop_mean_root_mad").alias("avg_all_indicators_population_mad"),
-                     F.count(F.lit(1)).alias("n_roots_used")
-                 )
-                 .orderBy("Country name")
+    paired.groupBy("Country name")
+          .agg(
+              F.avg("M").alias("avg_all_roots_mad_M"),
+              F.avg("F").alias("avg_all_roots_mad_F"),
+              F.count(F.lit(1)).alias("n_roots_used")
+          )
+          .withColumn(
+              "diff_abs_F_M_mad",
+              F.abs(F.col("avg_all_roots_mad_F") - F.col("avg_all_roots_mad_M"))
+          )
+          .orderBy("Country name")
 )
 
-output_file = os.path.join(output_dir_path, "3CD_country_population_mean_mad_1970_2023.csv")
+output_file = os.path.join(output_dir_path, "3CD_country_gender_diff_abs_mad.csv")
 
 (
     out_country.coalesce(1)

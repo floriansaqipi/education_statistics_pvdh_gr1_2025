@@ -8,14 +8,13 @@ import matplotlib.pyplot as plt
 from utils.paths import phase2_path
 from utils.schema import learning_indicators_schema
 
+
 input_file_path = phase2_path("3CA_check_learning_roots", "learning_indicators_only")
 output_dir_path = phase2_path("skewness_analysis", "")
 
-os.makedirs(output_dir_path, exist_ok=True)
-
 spark = (
     SparkSession.builder
-    .appName("Skewness before vs after MAD")
+    .appName("Skewness before vs after Z-score")
     .master("local[*]")
     .getOrCreate()
 )
@@ -70,7 +69,7 @@ before_stats = (
           )
           .withColumn(
               "sd_before_safe",
-              F.when(F.col("sd_before").isNull() | (F.col("sd_before") == 0), F.lit(1.0))
+              F.when(F.col("sd_before").isNull() | (F.col("sd_before") == 0), 1.0)
                .otherwise(F.col("sd_before"))
           )
           .withColumn(
@@ -80,35 +79,28 @@ before_stats = (
           .select("INDICATOR", "skew_before")
 )
 
-medians = (
+mu_sd = (
     df_std.groupBy("INDICATOR")
-          .agg(F.expr("percentile_approx(val_std, 0.5)").alias("median_val"))
-)
-
-df_med = (
-    df_std.join(medians, on="INDICATOR")
-          .withColumn("abs_dev", F.abs(F.col("val_std") - F.col("median_val")))
-)
-
-mad_vals = (
-    df_med.groupBy("INDICATOR")
-          .agg(F.expr("percentile_approx(abs_dev, 0.5)").alias("mad"))
-)
-
-df_mad = (
-    df_med.join(mad_vals, on="INDICATOR")
-          .withColumn(
-              "mad_safe",
-              F.when(F.col("mad").isNull() | (F.col("mad") == 0), F.lit(1.0))
-               .otherwise(F.col("mad"))
-          )
-          .withColumn(
-              "z_robust",
-              (F.col("val_std") - F.col("median_val")) / (F.col("mad_safe") * F.lit(1.4826))
+          .agg(
+              F.avg("val_std").alias("mu"),
+              F.stddev("val_std").alias("sd")
           )
 )
 
-df_clean = df_mad.filter(F.abs(F.col("z_robust")) <= 3.5)
+df_z = (
+    df_std.join(mu_sd, on="INDICATOR")
+          .withColumn(
+              "sd_safe",
+              F.when(F.col("sd").isNull() | (F.col("sd") == 0), 1.0)
+               .otherwise(F.col("sd"))
+          )
+          .withColumn(
+              "z",
+              (F.col("val_std") - F.col("mu")) / F.col("sd_safe")
+          )
+)
+
+df_clean = df_z.filter(F.abs(F.col("z")) <= 3.0)
 
 count_before = df_std.count()
 count_after = df_clean.count()
@@ -116,12 +108,11 @@ count_after = df_clean.count()
 removed_outliers = count_before - count_after
 percent_removed = removed_outliers / count_before * 100
 
-print("=== OUTLIERS REMOVED BY MAD ===")
+print("=== OUTLIERS REMOVED BY Z-SCORE ===")
 print(f"Total observations before: {count_before}")
 print(f"Total observations after : {count_after}")
 print(f"Outliers removed        : {removed_outliers}")
 print(f"Percentage removed      : {percent_removed:.3f}%")
-
 
 after_stats = (
     df_clean.groupBy("INDICATOR")
@@ -132,7 +123,7 @@ after_stats = (
             )
             .withColumn(
                 "sd_after_safe",
-                F.when(F.col("sd_after").isNull() | (F.col("sd_after") == 0), F.lit(1.0))
+                F.when(F.col("sd_after").isNull() | (F.col("sd_after") == 0), 1.0)
                  .otherwise(F.col("sd_after"))
             )
             .withColumn(
@@ -174,7 +165,7 @@ avg_change = mean_abs_after - mean_abs_before
 improved = comparison.filter(F.col("abs_skew_after") < F.col("abs_skew_before")).count()
 total = comparison.count()
 
-print("=== SKEWNESS BEFORE vs AFTER (MAD) ===")
+print("=== SKEWNESS BEFORE vs AFTER (Z-SCORE) ===")
 print(f"Mean |skew| BEFORE : {mean_abs_before}")
 print(f"Mean |skew| AFTER  : {mean_abs_after}")
 print(f"Average change     : {avg_change}")
@@ -187,26 +178,26 @@ plt.hist(
     comparison_pdf["abs_skew_before"],
     bins=40,
     alpha=0.5,
-    label="before MAD"
+    label="before Z-score"
 )
 plt.hist(
     comparison_pdf["abs_skew_after"],
     bins=40,
     alpha=0.5,
-    label="after MAD"
+    label="after Z-score"
 )
 plt.xlabel("|skewness| per indicator")
 plt.ylabel("Number of indicators")
-plt.title("Skewness before vs after MAD-based outlier handling")
+plt.title("Skewness before vs after Z-score-based outlier handling")
 plt.legend()
 
-plot_file = os.path.join(output_dir_path, "3C_mad_skewness_before_after.png")
+plot_file = os.path.join(output_dir_path, "3C_zscore_skewness_before_after.png")
 plt.savefig(plot_file, bbox_inches="tight")
 plt.close()
 
 print(f"Saved skewness comparison plot to: {plot_file}")
 
-output_file = os.path.join(output_dir_path, "3C_mad_skewness_before_after.csv")
+output_file = os.path.join(output_dir_path, "3C_zscore_skewness_before_after.csv")
 
 (
     comparison

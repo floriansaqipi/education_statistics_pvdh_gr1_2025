@@ -11,11 +11,9 @@ from utils.schema import learning_indicators_schema
 input_file_path = phase2_path("3CA_check_learning_roots", "learning_indicators_only")
 output_dir_path = phase2_path("skewness_analysis", "")
 
-os.makedirs(output_dir_path, exist_ok=True)
-
 spark = (
     SparkSession.builder
-    .appName("Skewness before vs after MAD")
+    .appName("Skewness before vs after IQR")
     .master("local[*]")
     .getOrCreate()
 )
@@ -70,7 +68,7 @@ before_stats = (
           )
           .withColumn(
               "sd_before_safe",
-              F.when(F.col("sd_before").isNull() | (F.col("sd_before") == 0), F.lit(1.0))
+              F.when(F.col("sd_before").isNull() | (F.col("sd_before") == 0), 1.0)
                .otherwise(F.col("sd_before"))
           )
           .withColumn(
@@ -80,66 +78,51 @@ before_stats = (
           .select("INDICATOR", "skew_before")
 )
 
-medians = (
+q1_q3 = (
     df_std.groupBy("INDICATOR")
-          .agg(F.expr("percentile_approx(val_std, 0.5)").alias("median_val"))
-)
-
-df_med = (
-    df_std.join(medians, on="INDICATOR")
-          .withColumn("abs_dev", F.abs(F.col("val_std") - F.col("median_val")))
-)
-
-mad_vals = (
-    df_med.groupBy("INDICATOR")
-          .agg(F.expr("percentile_approx(abs_dev, 0.5)").alias("mad"))
-)
-
-df_mad = (
-    df_med.join(mad_vals, on="INDICATOR")
-          .withColumn(
-              "mad_safe",
-              F.when(F.col("mad").isNull() | (F.col("mad") == 0), F.lit(1.0))
-               .otherwise(F.col("mad"))
-          )
-          .withColumn(
-              "z_robust",
-              (F.col("val_std") - F.col("median_val")) / (F.col("mad_safe") * F.lit(1.4826))
+          .agg(
+              F.expr("percentile_approx(val_std, 0.25)").alias("q1"),
+              F.expr("percentile_approx(val_std, 0.75)").alias("q3")
           )
 )
 
-df_clean = df_mad.filter(F.abs(F.col("z_robust")) <= 3.5)
+df_iqr = (
+    df_std.join(q1_q3, on="INDICATOR")
+          .withColumn("iqr", F.col("q3") - F.col("q1"))
+          .withColumn("lower", F.col("q1") - 1.5 * F.col("iqr"))
+          .withColumn("upper", F.col("q3") + 1.5 * F.col("iqr"))
+          .filter((F.col("val_std") >= F.col("lower")) & (F.col("val_std") <= F.col("upper")))
+)
 
 count_before = df_std.count()
-count_after = df_clean.count()
+count_after = df_iqr.count()
 
 removed_outliers = count_before - count_after
 percent_removed = removed_outliers / count_before * 100
 
-print("=== OUTLIERS REMOVED BY MAD ===")
+print("=== OUTLIERS REMOVED BY IQR ===")
 print(f"Total observations before: {count_before}")
 print(f"Total observations after : {count_after}")
 print(f"Outliers removed        : {removed_outliers}")
 print(f"Percentage removed      : {percent_removed:.3f}%")
 
-
 after_stats = (
-    df_clean.groupBy("INDICATOR")
-            .agg(
-                F.avg("val_std").alias("mean_after"),
-                F.expr("percentile_approx(val_std, 0.5)").alias("median_after"),
-                F.stddev("val_std").alias("sd_after")
-            )
-            .withColumn(
-                "sd_after_safe",
-                F.when(F.col("sd_after").isNull() | (F.col("sd_after") == 0), F.lit(1.0))
-                 .otherwise(F.col("sd_after"))
-            )
-            .withColumn(
-                "skew_after",
-                3 * (F.col("mean_after") - F.col("median_after")) / F.col("sd_after_safe")
-            )
-            .select("INDICATOR", "skew_after")
+    df_iqr.groupBy("INDICATOR")
+          .agg(
+              F.avg("val_std").alias("mean_after"),
+              F.expr("percentile_approx(val_std, 0.5)").alias("median_after"),
+              F.stddev("val_std").alias("sd_after")
+          )
+          .withColumn(
+              "sd_after_safe",
+              F.when(F.col("sd_after").isNull() | (F.col("sd_after") == 0), 1.0)
+               .otherwise(F.col("sd_after"))
+          )
+          .withColumn(
+              "skew_after",
+              3 * (F.col("mean_after") - F.col("median_after")) / F.col("sd_after_safe")
+          )
+          .select("INDICATOR", "skew_after")
 )
 
 comparison = (
@@ -174,7 +157,7 @@ avg_change = mean_abs_after - mean_abs_before
 improved = comparison.filter(F.col("abs_skew_after") < F.col("abs_skew_before")).count()
 total = comparison.count()
 
-print("=== SKEWNESS BEFORE vs AFTER (MAD) ===")
+print("=== SKEWNESS BEFORE vs AFTER (IQR) ===")
 print(f"Mean |skew| BEFORE : {mean_abs_before}")
 print(f"Mean |skew| AFTER  : {mean_abs_after}")
 print(f"Average change     : {avg_change}")
@@ -183,30 +166,20 @@ print(f"Indicators improved: {improved} / {total}")
 comparison_pdf = comparison.toPandas()
 
 plt.figure(figsize=(10, 5))
-plt.hist(
-    comparison_pdf["abs_skew_before"],
-    bins=40,
-    alpha=0.5,
-    label="before MAD"
-)
-plt.hist(
-    comparison_pdf["abs_skew_after"],
-    bins=40,
-    alpha=0.5,
-    label="after MAD"
-)
+plt.hist(comparison_pdf["abs_skew_before"], bins=40, alpha=0.5, label="before IQR")
+plt.hist(comparison_pdf["abs_skew_after"], bins=40, alpha=0.5, label="after IQR")
 plt.xlabel("|skewness| per indicator")
 plt.ylabel("Number of indicators")
-plt.title("Skewness before vs after MAD-based outlier handling")
+plt.title("Skewness before vs after IQR-based outlier handling")
 plt.legend()
 
-plot_file = os.path.join(output_dir_path, "3C_mad_skewness_before_after.png")
+plot_file = os.path.join(output_dir_path, "3C_iqr_skewness_before_after.png")
 plt.savefig(plot_file, bbox_inches="tight")
 plt.close()
 
 print(f"Saved skewness comparison plot to: {plot_file}")
 
-output_file = os.path.join(output_dir_path, "3C_mad_skewness_before_after.csv")
+output_file = os.path.join(output_dir_path, "3C_iqr_skewness_before_after.csv")
 
 (
     comparison
@@ -222,5 +195,3 @@ output_file = os.path.join(output_dir_path, "3C_mad_skewness_before_after.csv")
     .option("header", True)
     .csv(output_file)
 )
-
-spark.stop()
