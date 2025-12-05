@@ -99,3 +99,17 @@ gender_gap_zscore_schema = StructType([
     StructField("n_roots_used", IntegerType(), True),
     StructField("diff_abs_F_M_z", DoubleType(), True),
 ])
+
+gender_gap_schema = StructType([
+    StructField("Country name", StringType(), True),
+    StructField("avg_all_roots_mad_M", DoubleType(), True),
+    StructField("avg_all_roots_mad_F", DoubleType(), True),
+    StructField("n_roots_used", IntegerType(), True),
+    StructField("diff_abs_F_M_mad", DoubleType(), True)
+])
+
+population_learning_mad_schema = StructType([
+    StructField("Country name", StringType(), True),
+    StructField("avg_all_indicators_population_mad", DoubleType(), True),
+    StructField("n_indicators_used", IntegerType(), True)
+])
