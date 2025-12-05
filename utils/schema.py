@@ -31,6 +31,8 @@ integrated_outlier_schema = StructType(
     [StructField(f"YR{year}", DoubleType(), True) for year in range(1970, 2025)]
 )
 
+learning_indicators_schema = integrated_outlier_schema
+
 long_schema = StructType(
     [StructField(c, StringType(), True) for c in non_year_fields] +
     [StructField(c, StringType(), True) for c in integrated_fields] +
@@ -89,3 +91,11 @@ discrete_schema = StructType(
     [StructField("OUTCOME_high", IntegerType())] +
     [StructField("Efficiency_high", IntegerType())]
 )
+
+gender_gap_zscore_schema = StructType([
+    StructField("Country name", StringType(), True),
+    StructField("avg_all_roots_z_M", DoubleType(), True),
+    StructField("avg_all_roots_z_F", DoubleType(), True),
+    StructField("n_roots_used", IntegerType(), True),
+    StructField("diff_abs_F_M_z", DoubleType(), True),
+])
