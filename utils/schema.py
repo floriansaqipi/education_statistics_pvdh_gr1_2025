@@ -68,7 +68,8 @@ normalized_outlier_schema = StructType(
     [StructField("is_valid", BooleanType())] +
     [StructField("Year", IntegerType())] +
     [StructField("Value", DoubleType())] +
-    [StructField(c, DoubleType(), True) for c in normalization_fields]
+    [StructField(c, DoubleType(), True) for c in normalization_fields] +
+    [StructField("skewness", DoubleType())]
 )
 
 attributes_schema = StructType(
