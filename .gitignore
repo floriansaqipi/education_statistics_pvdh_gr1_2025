@@ -207,24 +207,10 @@ marimo/_lsp/
 __marimo__/
 
 
-data/Edstats_Updated.csv
-data/phase_1/output/1A_attributes_reorder/1A_attributes_reordered.csv
-data/phase_1/output/1C_data_quality_cleaning/1C_quality_cleaned.csv
-data/phase_1/output/2A_data_missing_values_handling/2A_missing_values_cleaned.csv
-data/phase_1/output/2B_data_cleaning/2B_cleaned.csv
-data/phase_1/output/3A_integration/3A_integrated_with_class.csv
-data/phase_1/output/4BA_transformation/4BA_transformation_unpivot.csv
-data/phase_1/output/4BB_aggregation/4BB_aggregation_latest.csv
 
 
-data/phase_1/output/4CD_aggregation_country_learning_population_zscore/4CD_country_root_population_mean_z/
-data/phase_1/output/4CA_check_learning_roots/learning_indicators_only.csv
 
-data/phase_2/output/1B_rule_based_outliers_flagging/1B_outliers_flagged.csv
-data/phase_2/output/1C_empty_sparse_outliers_removal/1C_empty_sparse_outliers_cleaned.csv
-data/phase_2/output/1D_outliers_cleaned/1D_outliers_cleaned.csv
-data/phase_2/output/2A_data_enrichment_with_class/2A_enriched_with_class.csv
-data/phase_2/output/3BA_transformation/3BA_transformation_unpivot.csv
-data/phase_2/output/3BB_aggregation/3BB_aggregation_latest.csv
-data/phase_2/output/3BC_dimension_reduction/3BCB_dimension_reduction_filtered_learning.csv
-data/phase_2/output/3BD_transformation_normalization/3BDB_transformation_normalized_learning.csv
+
+# Local database connection settings
+.idea/dataSources*
+.idea/data_source_mapping.xml

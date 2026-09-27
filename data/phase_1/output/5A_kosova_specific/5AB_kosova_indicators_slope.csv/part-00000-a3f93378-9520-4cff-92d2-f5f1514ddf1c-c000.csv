@@ -1,4 +1,3 @@
-INDICATOR,Indicator name,cov,varx,slope_per_year
-HD.HCI.HLOS.MA,"Harmonized Test Scores, Male",0.10068257649737689,2.3333333333333335,0.04314967564173295
-HD.HCI.HLOS,Harmonized Test Scores,-1.1755981445311932,2.3333333333333335,-0.5038277762276542
-HD.HCI.HLOS.FE,"Harmonized Test Scores, Female",-2.4843292236328125,2.3333333333333335,-1.0647125244140625
+version https://git-lfs.github.com/spec/v1
+oid sha256:9696f6c70fe802efe1fbaecd91c3d26c280ef6b3897ad6ca7a8aae7b1289ca64
+size 359

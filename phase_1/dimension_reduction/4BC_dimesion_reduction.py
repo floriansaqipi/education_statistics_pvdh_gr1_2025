@@ -14,8 +14,8 @@ from pyspark.sql import Window as W
 
 ROOT = Path(__file__).resolve().parents[1]
 
-input_file_path = ROOT / "data" / "phase_1" / "output" / "4BB_aggregation" / "4BB_aggregation_latest.csv"
-output_dir_path = ROOT / "data" / "phase_1" / "output" / "4BC_dimension_reduction"
+input_file_path = ROOT / ".." / "data" / "phase_1" / "output" / "4BB_aggregation" / "4BB_aggregation_latest.csv"
+output_dir_path = ROOT / ".." / "data" / "phase_1" / "output" / "4BC_dimension_reduction"
 
 spark = SparkSession.builder \
     .appName("CSV to Dataset") \
@@ -29,13 +29,16 @@ df = spark.read.option(
 finance = df.filter(F.lower(F.col("Indicator name")).rlike("expenditure|spending|% of gdp|per student|government"))
 learning = df.filter(F.lower(F.col("Indicator name")).rlike("harmonized test|learning-?adjusted|lays"))
 
-(finance.coalesce(1)
-   .write.mode("overwrite")
-   .option("header", True)
-   .csv((output_dir_path / "4BCA_dimension_reduction_filtered_finance.csv").as_posix()))
+print(finance.count())
+print(learning.count())
 
-
-(learning.coalesce(1)
-   .write.mode("overwrite")
-   .option("header", True)
-   .csv((output_dir_path / "4BCB_dimension_reduction_filtered_learning.csv").as_posix()))
+# (finance.coalesce(1)
+#    .write.mode("overwrite")
+#    .option("header", True)
+#    .csv((output_dir_path / "4BCA_dimension_reduction_filtered_finance.csv").as_posix()))
+#
+#
+# (learning.coalesce(1)
+#    .write.mode("overwrite")
+#    .option("header", True)
+#    .csv((output_dir_path / "4BCB_dimension_reduction_filtered_learning.csv").as_posix()))

@@ -90,13 +90,13 @@ def standardize(df_in):
 fin_z = standardize(finance)
 out_z = standardize(learning)
 
-fin_z = fin_z.filter(
-    ~(F.col("is_z_outlier") | F.col("is_iqr_outlier"))
-)
-
-out_z = out_z.filter(
-    ~(F.col("is_z_outlier") | F.col("is_iqr_outlier"))
-)
+# fin_z = fin_z.filter(
+#     ~(F.col("is_z_outlier") | F.col("is_iqr_outlier"))
+# )
+#
+# out_z = out_z.filter(
+#     ~(F.col("is_z_outlier") | F.col("is_iqr_outlier"))
+# )
 
 fin_z = fin_z.drop("is_z_outlier", "is_iqr_outlier")
 out_z = out_z.drop("is_z_outlier", "is_iqr_outlier")
